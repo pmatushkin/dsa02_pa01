@@ -24,11 +24,14 @@ public class tree_height {
     public class TreeHeight {
         int n;
         int parent[];
+        // array to store the heights of subtrees
+        int heights[];
 
         void read() throws IOException {
             FastScanner in = new FastScanner();
             n = in.nextInt();
             parent = new int[n];
+            heights = new int[n];
             for (int i = 0; i < n; i++) {
                 parent[i] = in.nextInt();
             }
@@ -37,13 +40,34 @@ public class tree_height {
         int computeHeight() {
             // Replace this code with a faster implementation
             int maxHeight = 0;
+
             for (int vertex = 0; vertex < n; vertex++) {
-                int height = 0;
-                for (int i = vertex; i != -1; i = parent[i])
-                    height++;
-                maxHeight = Math.max(maxHeight, height);
+                // check if the current subtree was already measured;
+                // measure if it wasn't
+                if (0 == heights[vertex]) {
+                    heights[vertex] = getHeight(vertex);
+                }
+
+                int height = heights[vertex];
+                maxHeight = maxHeight > height ? maxHeight : height;
             }
+
             return maxHeight;
+        }
+
+        int getHeight(int i) {
+            // if this subtree is not yet measured, calculate and remember its height
+            if (0 == heights[i]) {
+                int parent_i = parent[i];
+
+                if (-1 == parent_i) {
+                    heights[i] = 1;
+                } else {
+                    heights[i] = 1 + getHeight(parent_i);
+                }
+            }
+
+            return heights[i];
         }
     }
 
