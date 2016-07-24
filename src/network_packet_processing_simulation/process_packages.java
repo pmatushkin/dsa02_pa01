@@ -1,5 +1,7 @@
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.Scanner;
 
 class Request {
@@ -25,33 +27,28 @@ class Response {
 class Buffer {
     public Buffer(int size) {
         this.size_ = size;
-        this.finish_time_ = new ArrayList<Integer>();
     }
 
     private int maxFinishTime = 0;
+    private Queue<Integer> finish_time_ = new ArrayDeque<>();
 
     public Response Process(Request request) {
         // write your code here
 
+        int arrivalTime = request.arrival_time;
+
         // this handles the wait if the next packet doesn't arrive immediately
-        if (maxFinishTime < request.arrival_time) {
-            maxFinishTime = request.arrival_time;
+        if (maxFinishTime < arrivalTime) {
+            maxFinishTime = arrivalTime;
         }
 
         // remove all finish_times lesser or equal than request.arrival_time
-        int i = 0;
-        int countPacketsInBuffer = this.finish_time_.size();
-        while (i < countPacketsInBuffer) {
-            if (finish_time_.get(i) <= request.arrival_time) {
-                finish_time_.remove(i);
-                countPacketsInBuffer--;
-            } else {
-                i++;
-            }
+        while (!finish_time_.isEmpty() && (arrivalTime >= finish_time_.peek())) {
+            finish_time_.remove();
         }
 
         // count the number of packets in finish_time_: this is how many packages are currently in the buffer
-        countPacketsInBuffer = this.finish_time_.size();
+        int countPacketsInBuffer = this.finish_time_.size();
 
         if (countPacketsInBuffer < this.size_) {
             // get the time when the buffer becomes empty
@@ -68,7 +65,6 @@ class Buffer {
     }
 
     private int size_;
-    private ArrayList<Integer> finish_time_;
 }
 
 class process_packages {
